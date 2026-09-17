@@ -1,0 +1,10 @@
+{
+  "name": "collab-doc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "多人协作文档：离线编辑、CRDT 合并、锚定评论、修订时间线与恢复",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "node test/test.js"
+  }
+}

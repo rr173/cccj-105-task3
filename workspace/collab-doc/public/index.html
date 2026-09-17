@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>多人协作文档</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <h1>多人协作文档</h1>
+  <div class="meta">
+    <span id="presence">—</span>
+    <span id="identity">
+      <input id="myName" maxlength="80" spellcheck="false" title="你的显示名（所有者将看到并按此邀请你）">
+      <span id="myId" title="你的用户 ID（复制给所有者即可被邀请）"></span>
+    </span>
+    <span id="roleBadge" class="rolebadge">—</span>
+    <span id="status"><span id="dot"></span><span id="statusText">连接中…</span></span>
+  </div>
+</header>
+
+<div id="toolbar">
+  <button data-fmt="bold" title="加粗（编辑或更高）"><b>B</b></button>
+  <button data-fmt="italic" title="斜体（编辑或更高）"><i>I</i></button>
+  <button data-fmt="underline" title="下划线（编辑或更高）"><u>U</u></button>
+  <span class="sep"></span>
+  <button id="commentBtn">💬 评论选中文字</button>
+  <span id="hint"></span>
+</div>
+
+<main>
+  <div id="editor" contenteditable="true" spellcheck="false"></div>
+  <aside>
+    <section id="membersSection">
+      <h2>成员与权限 <span id="epochTag" class="epoch"></span></h2>
+      <div id="members"></div>
+      <div id="admin" class="hidden">
+        <div class="admin-title">所有者操作</div>
+        <div class="invite-row">
+          <input id="inviteId" placeholder="用户 ID 或点右侧在线名单邀请" maxlength="128" spellcheck="false">
+          <select id="inviteRole">
+            <option value="editor">编辑</option>
+            <option value="commenter">评论者</option>
+            <option value="viewer">只读</option>
+            <option value="owner">所有者</option>
+          </select>
+          <button id="inviteBtn">邀请</button>
+        </div>
+      </div>
+      <div id="peers"></div>
+    </section>
+
+    <section id="quarantineSection" class="hidden">
+      <h2>⛔ 被拒绝的操作（隔离草稿） <span id="qCount" class="qcount"></span></h2>
+      <div id="quarantine"></div>
+    </section>
+
+    <section>
+      <h2>评论</h2>
+      <div id="newComment" class="hidden">
+        <div class="nc-quote-label">锚定文字：</div>
+        <div id="ncQuote"></div>
+        <textarea id="ncText" rows="3" placeholder="输入评论内容…"></textarea>
+        <div class="row">
+          <button id="ncSubmit">添加评论</button>
+          <button id="ncCancel" class="ghost">取消</button>
+        </div>
+      </div>
+      <div id="comments"></div>
+    </section>
+    <section>
+      <h2>修订时间线</h2>
+      <div id="revs"></div>
+    </section>
+    <section id="ledgerSection">
+      <h2>审计账本（成员变更 ↔ 修订统一顺序）</h2>
+      <div id="ledger"></div>
+    </section>
+  </aside>
+</main>
+
+<script src="/shared/crdt.js"></script>
+<script src="/shared/authz.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

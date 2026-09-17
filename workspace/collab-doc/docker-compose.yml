@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+    volumes:
+      - doc-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  doc-data:

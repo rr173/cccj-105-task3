@@ -218,7 +218,115 @@
       return out;
     }
     commentList() { return [...this.comments.values()]; }
+    hasId(id) { return id != null && this.chars.has(id); }
   }
 
-  return { Doc, ROOT, cmpId, isSubseq };
+  // ---------------- 流水压缩：基线（剪枝快照） ----------------
+  // RGA 字符 id 全局唯一且永不重写：压缩只"剪掉"彻底失去用途的叶子墓碑，
+  // 不重映射任何 id。因此旧代次字符引用到新基线的换算天然是恒等映射——
+  // 引用要么仍落在基线/窗口中（保留意图），要么随墓碑被回收（显式冲突）。
+  function refIdsOfOp(op) {
+    const ids = [];
+    if (!op) return ids;
+    if (op.t === 'ins') { if (op.after !== ROOT) ids.push(op.after); }
+    else if (op.t === 'del') { ids.push(op.id); }
+    else if (op.t === 'mark' || op.t === 'com') {
+      if (op.start && op.start.id != null) ids.push(op.start.id);
+      if (op.end && op.end.id != null) ids.push(op.end.id);
+    }
+    return ids;
+  }
+
+  // 计算 RGA 子树中是否仍含存活字符（后序标记）。死字符若还有活子孙，
+  // 它仍是活节点的 after 链锚点，必须保留；只有"死且无活子孙"才可回收。
+  function markLiveSubtrees(doc) {
+    const live = new Set();
+    const dfs = (p) => {
+      let any = false;
+      const ch = doc.kids.get(p);
+      if (ch) for (const id of ch) {
+        const node = doc.chars.get(id);
+        const childLive = dfs(id) || !!(node && !node.tomb);
+        if (childLive) any = true;
+      }
+      if (any && p !== ROOT) live.add(p);
+      return any;
+    };
+    dfs(ROOT);
+    return live;
+  }
+
+  // 在切点上构建基线：
+  //  keep = 全部活字符 ∪ 有活子孙的墓碑 ∪ 窗口 ops/保留状态实际引用到的字符
+  //（后两者保证窗口重放与锚点落点确定；被回收的只有彻底无用的叶子墓碑）。
+  function buildBaseline(doc, windowOps) {
+    const seq = doc.seq(); // 先序遍历：父先于子，天然拓扑序
+    const liveSub = markLiveSubtrees(doc);
+    const keep = new Set();
+    for (const c of seq) {
+      if (!c.tomb || liveSub.has(c.id)) keep.add(c.id);
+    }
+    const refs = new Set();
+    for (const op of windowOps || []) {
+      for (const id of refIdsOfOp(op)) if (doc.chars.has(id)) refs.add(id);
+    }
+    for (const m of doc.marks.values()) {
+      if (m.start && m.start.id != null && doc.chars.has(m.start.id)) refs.add(m.start.id);
+      if (m.end && m.end.id != null && doc.chars.has(m.end.id)) refs.add(m.end.id);
+    }
+    for (const c of doc.comments.values()) {
+      if (c.start && c.start.id != null && doc.chars.has(c.start.id)) refs.add(c.start.id);
+      if (c.end && c.end.id != null && doc.chars.has(c.end.id)) refs.add(c.end.id);
+    }
+    const chars = [];
+    for (const c of seq) {
+      if (keep.has(c.id) || refs.has(c.id)) {
+        chars.push({ id: c.id, after: c.after, ch: c.ch, tomb: !!c.tomb, by: c.by });
+      }
+    }
+    return {
+      chars,
+      marks: [...doc.marks.values()].map(m => ({
+        id: m.id, start: m.start, end: m.end, attrs: m.attrs || {}, ts: m.ts, by: m.by, deleted: !!m.deleted,
+      })),
+      comments: [...doc.comments.values()].map(c => ({
+        id: c.id, start: c.start, end: c.end, text: c.text, quote: c.quote, ts: c.ts, by: c.by, resolved: !!c.resolved,
+      })),
+    };
+  }
+
+  // 基线 -> 可按序 apply 的合成操作（迁移分片与服务器重放共用，确定性一致）。
+  // chars 已是拓扑序：先 ins 全部（含墓碑位），再对墓碑补 del；状态类原样。
+  function baselineOps(b) {
+    const ops = [];
+    if (!b) return ops;
+    for (const c of b.chars || []) {
+      ops.push({ t: 'ins', id: c.id, after: c.after, ch: c.ch, by: c.by });
+      if (c.tomb) ops.push({ t: 'del', id: c.id, by: c.by });
+    }
+    for (const m of b.marks || []) ops.push(Object.assign({ t: 'mark' }, m));
+    for (const c of b.comments || []) ops.push(Object.assign({ t: 'com' }, c));
+    return ops;
+  }
+  function importBaseline(doc, b) {
+    doc.clear();
+    for (const op of baselineOps(b)) doc.apply(op);
+    return doc;
+  }
+
+  // 投影指纹：压缩前后必须逐字节等价（正文 / 样式 / 批注）。
+  function fingerprint(doc) {
+    const marks = doc.activeMarks()
+      .map(m => [m.id, m.s, m.e, JSON.stringify(m.attrs)])
+      .sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
+    const coms = doc.commentList()
+      .map(c => [c.id, c.start && c.start.id, c.start && c.start.edge, c.end && c.end.id, c.end && c.end.edge, c.text, c.resolved, c.ts, c.by])
+      .sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
+    return JSON.stringify({ t: doc.text(), m: marks, c: coms });
+  }
+
+  return {
+    Doc, ROOT, cmpId, isSubseq,
+    refIdsOfOp, buildBaseline, baselineOps, importBaseline, fingerprint,
+  };
 });

@@ -170,3 +170,53 @@ pre.qjson {
 .ltag.membership { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
 .ltag.space { background: #e6f4ff; color: #0958d9; border: 1px solid #91caff; }
 .lbody { color: #444; word-break: break-word; min-width: 0; }
+
+/* 流水压缩与代次 */
+#compactPanel { font-size: 12px; }
+.crow { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; border-bottom: 1px dashed #f0f0f0; }
+.crow .ck { color: #999; min-width: 96px; flex: 0 0 auto; }
+.crow .cv { color: #333; }
+.crow.warn .cv { color: #d48806; }
+.crow.bad .cv { color: #cf1322; }
+.crow .csub { color: #aaa; font-size: 10px; }
+.wm-title, .gen-list + .wm-title { margin-top: 8px; color: #888; font-size: 11px; }
+.wm-list { margin: 4px 0; }
+.wm { display: flex; gap: 8px; align-items: baseline; padding: 2px 4px; border-radius: 4px; font-size: 11px; }
+.wm .wmname { min-width: 90px; }
+.wm .wmpos { color: #666; font-variant-numeric: tabular-nums; }
+.wm .wmlease { margin-left: auto; color: #999; }
+.wm.on .wmlease { color: #389e0d; }
+.wm.off .wmlease { color: #b0b0b0; }
+.wm.stale { background: #fff7e6; }
+.wm.stale .wmlease { color: #d46b08; }
+.gen-list { margin: 4px 0; }
+.grow { display: flex; gap: 8px; align-items: baseline; font-size: 11px; color: #666; padding: 1px 0; }
+.grow .gno { color: #0958d9; font-weight: 600; min-width: 52px; }
+.grow .gseq { color: #888; }
+.grow .gtime { margin-left: auto; color: #bbb; }
+.compact-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+.compact-actions button {
+  border: 1px solid #d0d3d9; background: #fff; border-radius: 6px; padding: 3px 10px;
+  font-size: 12px; cursor: pointer;
+}
+.compact-actions button:not(.ghost) { background: #0958d9; color: #fff; border-color: #0958d9; }
+.cap-lbl { color: #666; font-size: 11px; }
+
+/* 快照迁移 */
+#migrationBox { font-size: 12px; }
+.mig-title { margin-bottom: 6px; }
+.mig-bar { background: #f0f2f5; border-radius: 6px; height: 10px; overflow: hidden; }
+.mig-bar i { display: block; height: 100%; background: linear-gradient(90deg,#1677ff,#69b1ff); transition: width .2s; }
+.mig-sub { color: #999; font-size: 11px; margin-top: 6px; line-height: 1.5; }
+.mig-ok { color: #389e0d; font-weight: 600; }
+
+/* 冲突草稿 */
+.qcard.conflict { border-color: #d48806; background: #fffdf5; }
+.qconflicts { background: #fffbe6; border-left: 3px solid #d48806; padding: 4px 8px; margin: 6px 0; color: #7a5b00; }
+.qconflicts code { background: #fff; border: 1px solid #ffe58f; border-radius: 3px; padding: 0 4px; font-size: 11px; }
+.qconflicts ul { margin: 3px 0; padding-left: 18px; }
+
+/* 已回收快照的修订 */
+.rev.compacted { opacity: .62; }
+.compact-tag { font-size: 10px; color: #b08000; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 4px; padding: 0 5px; margin-left: 4px; }
+.kind-rebase { color: #722ed1; }

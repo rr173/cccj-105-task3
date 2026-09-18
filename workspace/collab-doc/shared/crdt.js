@@ -142,6 +142,7 @@
           id: op.id, start: op.start, end: op.end,
           text: String(op.text || ''), quote: String(op.quote || ''),
           ts: op.ts, by: op.by, resolved: !!op.resolved,
+          detached: !!op.detached, detachReason: op.detachReason || null,
         });
       }
       return true;
@@ -194,6 +195,8 @@
 
     // ---------- 评论状态解析（可解释的悬空） ----------
     resolveComment(c) {
+      // 压缩迁移后锚点被显式判定死亡：保持 detached，不悄悄重算到其他字句
+      if (c.detached) return { status: 'detached-compacted', cur: '', s: 0, e: 0, reason: c.detachReason };
       const [s, e] = this.range(c.start, c.end);
       const cur = this.text().slice(s, e);
       const quote = c.quote || '';

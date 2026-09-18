@@ -170,3 +170,29 @@ pre.qjson {
 .ltag.membership { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
 .ltag.space { background: #e6f4ff; color: #0958d9; border: 1px solid #91caff; }
 .lbody { color: #444; word-break: break-word; min-width: 0; }
+
+/* 代次 / 有界流水面板 */
+#compactionSection { border-top: 2px solid #eee; padding-top: 10px; }
+#genLine { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; }
+.gentag { font-weight: 700; color: #0958d9; background: #e6f4ff; border: 1px solid #91caff; border-radius: 4px; padding: 2px 8px; }
+.seqrange { color: #555; font-variant-numeric: tabular-nums; }
+.logbytes { color: #777; font-variant-numeric: tabular-nums; }
+.compact-error { color: #cf1322; background: #fff1f0; border: 1px solid #ffa39e; border-radius: 6px; padding: 6px 8px; font-size: 12px; margin: 6px 0; }
+.baselinelist { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.bl { background: #f6ffed; border: 1px solid #b7eb8f; color: #389e0d; border-radius: 4px; padding: 2px 8px; font-size: 12px; }
+.bl small { color: #7a9e6a; }
+.bl button { font-size: 11px; margin-left: 4px; }
+.watermarks { display: flex; flex-direction: column; gap: 4px; }
+.wm { display: flex; gap: 8px; align-items: center; font-size: 12px; padding: 3px 6px; border-radius: 4px; background: #fafafa; }
+.wm.current { background: #f6ffed; }
+.wm.stale { opacity: .65; }
+.wmname { font-weight: 600; min-width: 90px; }
+.wmpos { color: #555; font-variant-numeric: tabular-nums; }
+.wmlease { margin-left: auto; color: #999; font-size: 11px; }
+.wm.current .wmlease { color: #389e0d; }
+.ltag.evolution { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+.kind-base { color: #d46b08; font-weight: 700; }
+.kind-mig { color: #0958d9; }
+.rev.baseline { background: #fffbe6; border-radius: 6px; }
+.qcard.cf { border-color: #ffd591; background: #fffaf0; }
+.cs-detached-compacted { background: #fff1f0; outline: 1px dashed #ffa39e; }
